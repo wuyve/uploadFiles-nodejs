@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>上传图片</title>
+    <style>
+      .title {
+        font-size: 25px;
+        font-weight: bold;
+      }
+
+      #img {
+        width: 150px;
+        height: 150px;
+        border: 3px dashed #cdcdcd;
+      }
+
+      #singleFile {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        width: 150px;
+        height: 150px;
+      }
+
+      .submit,
+      .downloadImg {
+        width: 150px;
+        height: 36px;
+        background-color: #4E6EF2;
+        color: #FFF;
+        font-size: 15px;
+        border-radius: 18px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .multer,
+      .single,
+      .upbefore {
+        margin: 10px;
+      }
+
+      #imgs img {
+        width: 100px;
+        height: 100px;
+        margin: 10px;
+      }
+
+      .choose-img {
+        width: 100px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #81C0F2;
+        color: #FFF;
+        border-radius: 15px;
+        margin: 20px;
+      }
+
+      #upgteimg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100px;
+        height: 30px;
+        opacity: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 单文件上传 -->
+    <div class="single">
+      <div class="title">单个文件上传</div>
+      <div style="position: relative;">
+        <img src="./asset/add.png" id="img">
+        <input type="file" name="singleFile" id="singleFile" accept=".jpg, .jpeg, .png" title="">
+      </div>
+      <div class="submit">上传</div>
+      <div class="downloadImg">下载</div>
+    </div>
+
+    <div class="multer">
+      <div class="title">多个文件上传</div>
+      <input type="file" name="multerFile" id="multerFile" multiple>
+      <div class="submit">上传</div>
+    </div>
+
+
+    <div class="upbefore">
+      <div class="title">可多次点击添加按钮，并预览</div>
+      <div id="imgs"></div>
+      <div style="position: relative;">
+        <div class="choose-img">选择图片</div>
+        <input type="file" id="upgteimg" value="" />
+      </div>
+      <div class="submit">上传</div>
+    </div>
+
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      let file;
+      $('.downloadImg').hide();
+      $('#singleFile').on('change', function () {
+        console.log($(this).val());
+        $('#img').attr('src', URL.createObjectURL($(this)[0].files[0]));
+      });
+      // 单文件上传
+      $('.single .submit').on('click', function () {
+        var fileList = $('#singleFile')[0].files;
+        console.log(fileList[0])
+        var formData = new FormData();
+        //此处文件名必须为 singleFile ，因为后台设置仅接口此文件名
+        formData.append('singleFile', fileList[0]);
+        console.log(formData);
+        $.ajax({
+          url: 'http://localhost:3000/uploadSingle',
+          type: 'post',
+          processData: false,
+          contentType: false,//使用multer配合ajax时无需配置multipart/form-data，multer将自动配置，手动配置将报错，boundary not found
+          data: formData,
+          success: function (data) {
+            if (data.code == '0') {
+              $('#img').attr('src', data.path);
+              $('.downloadImg').show();
+              file = data.data.origin_name;
+            }
+            console.log(data)
+          }
+        })
+      });
+
+      // 多文件上传
+      $('.multer .submit').on('click', function () {
+
+        var fileList = $('#multerFile')[0].files;
+        console.log(fileList);
+        var formData = new FormData();
+
+        for (let i = 0; i < fileList.length; i++) {
+          //此处文件名必须为 multerFile ，因为后台设置仅接口此文件名
+          formData.append('multerFile', fileList[i]);
+        }
+
+        $.ajax({
+          url: 'http://localhost:3000/uploadMulti',
+          type: 'post',
+          processData: false,
+          contentType: false,
+          data: formData,
+          success: function (data) {
+            console.log(data)
+          }
+        })
+      });
+
+      // 可多次点击添加按钮，并预览
+      let arr = [];
+      let src = [];
+
+      $('#upgteimg').on('change', function () {
+        let $this = $(this)
+        let url = URL.createObjectURL($this[0].files[0]);
+        src.push(url);
+        arr.push($this[0].files[0]);
+        console.log(arr);
+        console.log(src);
+        showImg()
+      })
+
+      function showImg() {
+        let html = ''
+        for (let i = 0; i < src.length; i++) {
+          const element = src[i];
+          html += `<img src="${element}" alt="">`
+        }
+        $('#imgs').html(html);
+      }
+
+      $('.upbefore .submit').on('click', function () {
+        var formData = new FormData();
+        for (let i = 0; i < arr.length; i++) {
+          //此处文件名必须为 multerFile ，因为后台设置仅接口此文件名
+          formData.append('multerFile', arr[i]);
+        }
+        $.ajax({
+          url: 'http://localhost:3000/uploadMulti',
+          type: 'post',
+          processData: false,
+          contentType: false,
+          data: formData,
+          success: function (data) {
+            console.log(data)
+          }
+        })
+      })
+
+      // 获取服务器文件
+
+
+      // 下载图片
+      $('.downloadImg').on('click', function () {
+        downloadFile(file);
+        window.location.url = 'http://localhost:3000/' + file;
+      });
+      const downloadFile = file => {
+        $.ajax({
+          url: 'http://localhost:3000/' + file,
+          type: 'get',
+          processData: false,
+          contentType: false,
+          data: {},
+          success: function (data) {
+            console.log(data)
+          }
+        });
+      }
+    </script>
+  </body>
+
+</html>
