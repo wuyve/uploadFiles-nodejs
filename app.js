@@ -71,8 +71,9 @@ app.post('/uploadMulti', upload.array('multerFile'), function (req, res, next) {
 app.use(express.static('upload'));
 // 单个文件下载
 app.get('/upload/*', function (req, res) {
-  res.download(__dirname + "/" + decodeURIComponent(req.url));
+  // res.set('Content-Type', 'multipart/form-data; boundary=something')
   console.log("Request for " + decodeURIComponent(req.url) + " received.");
+  res.download(__dirname + "/" + decodeURIComponent(req.url));
 });
 
 app.listen(3000);
