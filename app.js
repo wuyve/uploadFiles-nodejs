@@ -1,4 +1,3 @@
-const fs = require('fs');
 const express = require('express');
 const multer = require('multer');
 const app = express();
@@ -67,6 +66,7 @@ app.post('/uploadMulti', upload.array('multerFile'), function (req, res, next) {
 });
 
 // 下载文件
+// 设置文件下载路径
 app.use(express.static('upload'));
 // 单个文件下载
 app.get('/upload/*', function (req, res) {
