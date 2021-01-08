@@ -2,7 +2,6 @@ const fs = require('fs');
 const express = require('express');
 const multer = require('multer');
 const app = express();
-const path = require('path');
 
 // 设置跨域
 // 允许跨域

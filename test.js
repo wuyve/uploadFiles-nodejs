@@ -1,11 +1,5 @@
-const isPic = name => {
-  let picture = ['png', 'jpg', 'jpeg', 'gif'];
-  let lastName = name.split('.');
-  lastName = lastName[lastName.length - 1];
-  if (picture.indexOf(lastName) !== -1) {
-    return 'image';
-  }
-  return 'file';
-};
-let result = isPic('111.gif..jpg');
-console.log(result)
+let arr = new Array(5).fill(0);
+arr[0] = 1;
+arr[2] = 2;
+arr[3] = 5;
+console.log(arr);
